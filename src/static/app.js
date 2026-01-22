@@ -1059,6 +1059,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const ctx = canvas.getContext('2d');
   let width, height;
   
+  // Animation constants
+  const BRANCH_COUNT = 8;
+  const TARGET_DISTANCE = 200;
+  const NODE_OFFSET = 50;
+  const MAX_ADDITIONAL_NODES = 5;
+  const MIN_NODES = 3;
+  
   function resizeCanvas() {
     width = canvas.width = window.innerWidth;
     height = canvas.height = window.innerHeight;
@@ -1067,24 +1074,37 @@ document.addEventListener("DOMContentLoaded", () => {
   resizeCanvas();
   window.addEventListener('resize', resizeCanvas);
   
+  // Helper function to generate random position
+  function randomPosition() {
+    return {
+      x: Math.random() * width,
+      y: Math.random() * height
+    };
+  }
+  
   class Branch {
     constructor() {
-      this.x = Math.random() * width;
-      this.y = Math.random() * height;
-      this.targetX = this.x + (Math.random() - 0.5) * 200;
-      this.targetY = this.y + (Math.random() - 0.5) * 200;
+      this.resetPosition();
       this.progress = 0;
       this.speed = 0.002 + Math.random() * 0.003;
       this.nodes = [];
       this.createNodes();
     }
     
+    resetPosition() {
+      const pos = randomPosition();
+      this.x = pos.x;
+      this.y = pos.y;
+      this.targetX = this.x + (Math.random() - 0.5) * TARGET_DISTANCE;
+      this.targetY = this.y + (Math.random() - 0.5) * TARGET_DISTANCE;
+    }
+    
     createNodes() {
-      const numNodes = 3 + Math.floor(Math.random() * 5);
+      const numNodes = MIN_NODES + Math.floor(Math.random() * MAX_ADDITIONAL_NODES);
       for (let i = 0; i < numNodes; i++) {
         this.nodes.push({
-          x: this.x + (this.targetX - this.x) * (i / numNodes) + (Math.random() - 0.5) * 50,
-          y: this.y + (this.targetY - this.y) * (i / numNodes) + (Math.random() - 0.5) * 50
+          x: this.x + (this.targetX - this.x) * (i / numNodes) + (Math.random() - 0.5) * NODE_OFFSET,
+          y: this.y + (this.targetY - this.y) * (i / numNodes) + (Math.random() - 0.5) * NODE_OFFSET
         });
       }
     }
@@ -1092,10 +1112,7 @@ document.addEventListener("DOMContentLoaded", () => {
     update() {
       this.progress += this.speed;
       if (this.progress >= 1) {
-        this.x = Math.random() * width;
-        this.y = Math.random() * height;
-        this.targetX = this.x + (Math.random() - 0.5) * 200;
-        this.targetY = this.y + (Math.random() - 0.5) * 200;
+        this.resetPosition();
         this.progress = 0;
         this.nodes = [];
         this.createNodes();
@@ -1130,8 +1147,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
   
+  // Initialize branches after canvas is sized
   const branches = [];
-  for (let i = 0; i < 8; i++) {
+  for (let i = 0; i < BRANCH_COUNT; i++) {
     branches.push(new Branch());
   }
   
