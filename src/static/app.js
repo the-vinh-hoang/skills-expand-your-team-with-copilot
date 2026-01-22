@@ -1050,3 +1050,119 @@ document.addEventListener("DOMContentLoaded", () => {
   initializeFilters();
   fetchActivities();
 });
+
+// Git-style branch animation
+(function initGitBranchesAnimation() {
+  const canvas = document.getElementById('git-branches-canvas');
+  if (!canvas) return;
+
+  const ctx = canvas.getContext('2d');
+  let width, height;
+  
+  // Animation constants
+  const BRANCH_COUNT = 8;
+  const TARGET_DISTANCE = 200;
+  const NODE_OFFSET = 50;
+  const MAX_ADDITIONAL_NODES = 5;
+  const MIN_NODES = 3;
+  
+  function resizeCanvas() {
+    width = canvas.width = window.innerWidth;
+    height = canvas.height = window.innerHeight;
+  }
+  
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+  
+  // Helper function to generate random position
+  function randomPosition() {
+    return {
+      x: Math.random() * width,
+      y: Math.random() * height
+    };
+  }
+  
+  class Branch {
+    constructor() {
+      this.resetPosition();
+      this.progress = 0;
+      this.speed = 0.002 + Math.random() * 0.003;
+      this.nodes = [];
+      this.createNodes();
+    }
+    
+    resetPosition() {
+      const pos = randomPosition();
+      this.x = pos.x;
+      this.y = pos.y;
+      this.targetX = this.x + (Math.random() - 0.5) * TARGET_DISTANCE;
+      this.targetY = this.y + (Math.random() - 0.5) * TARGET_DISTANCE;
+    }
+    
+    createNodes() {
+      const numNodes = MIN_NODES + Math.floor(Math.random() * MAX_ADDITIONAL_NODES);
+      for (let i = 0; i < numNodes; i++) {
+        this.nodes.push({
+          x: this.x + (this.targetX - this.x) * (i / numNodes) + (Math.random() - 0.5) * NODE_OFFSET,
+          y: this.y + (this.targetY - this.y) * (i / numNodes) + (Math.random() - 0.5) * NODE_OFFSET
+        });
+      }
+    }
+    
+    update() {
+      this.progress += this.speed;
+      if (this.progress >= 1) {
+        this.resetPosition();
+        this.progress = 0;
+        this.nodes = [];
+        this.createNodes();
+      }
+    }
+    
+    draw() {
+      const isDarkMode = document.body.classList.contains('dark-mode');
+      ctx.strokeStyle = isDarkMode ? '#7FFF00' : '#32CD32';
+      ctx.lineWidth = 2;
+      ctx.lineCap = 'round';
+      
+      const visibleNodes = Math.floor(this.progress * this.nodes.length);
+      if (visibleNodes < 2) return;
+      
+      ctx.beginPath();
+      ctx.moveTo(this.nodes[0].x, this.nodes[0].y);
+      
+      for (let i = 1; i < visibleNodes; i++) {
+        ctx.lineTo(this.nodes[i].x, this.nodes[i].y);
+      }
+      
+      ctx.stroke();
+      
+      // Draw nodes as circles
+      ctx.fillStyle = isDarkMode ? '#7FFF00' : '#32CD32';
+      for (let i = 0; i < visibleNodes; i++) {
+        ctx.beginPath();
+        ctx.arc(this.nodes[i].x, this.nodes[i].y, 4, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+  }
+  
+  // Initialize branches after canvas is sized
+  const branches = [];
+  for (let i = 0; i < BRANCH_COUNT; i++) {
+    branches.push(new Branch());
+  }
+  
+  function animate() {
+    ctx.clearRect(0, 0, width, height);
+    
+    branches.forEach(branch => {
+      branch.update();
+      branch.draw();
+    });
+    
+    requestAnimationFrame(animate);
+  }
+  
+  animate();
+})();
