@@ -721,7 +721,7 @@ footer {
   background-color: rgba(255, 255, 255, 0.3);
 }
 
-/* Adjust user controls position when dark mode toggle is present */
+/* Adjust user controls position to avoid overlap with dark mode toggle */
 #user-controls {
-  right: 70px;
+  right: calc(15px + 55px); /* Right margin + approximate toggle width */
 }
