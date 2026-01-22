@@ -31,13 +31,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Dark mode functionality
   function initializeDarkMode() {
-    // Check if user has a saved preference
-    const savedTheme = localStorage.getItem("theme");
-    if (savedTheme === "dark") {
-      document.body.classList.add("dark-mode");
-      darkModeIcon.textContent = "☀️";
-    } else {
-      // Explicitly set light mode (handles 'light' or no preference)
+    try {
+      // Check if user has a saved preference
+      const savedTheme = localStorage.getItem("theme");
+      if (savedTheme === "dark") {
+        document.body.classList.add("dark-mode");
+        darkModeIcon.textContent = "☀️";
+      } else {
+        // Explicitly set light mode (handles 'light' or no preference)
+        document.body.classList.remove("dark-mode");
+        darkModeIcon.textContent = "🌙";
+      }
+    } catch (error) {
+      // If localStorage is not available (e.g., private browsing), default to light mode
+      console.warn("localStorage not available, using default light mode", error);
       document.body.classList.remove("dark-mode");
       darkModeIcon.textContent = "🌙";
     }
@@ -50,8 +57,12 @@ document.addEventListener("DOMContentLoaded", () => {
     // Update icon
     darkModeIcon.textContent = isDarkMode ? "☀️" : "🌙";
     
-    // Save preference
-    localStorage.setItem("theme", isDarkMode ? "dark" : "light");
+    // Save preference (with error handling)
+    try {
+      localStorage.setItem("theme", isDarkMode ? "dark" : "light");
+    } catch (error) {
+      console.warn("Unable to save theme preference", error);
+    }
   }
 
   // Event listener for dark mode toggle
