@@ -4,7 +4,7 @@
   --primary: #32cd32;
   --primary-light: #7fff00;
   --primary-dark: #228b22;
-  --primary-text: #000000;
+  --primary-text: #ffffff;
 
   /* Secondary colors */
   --secondary: #ff6f00;
@@ -38,7 +38,7 @@ body.dark-mode {
   --primary: #32cd32;
   --primary-light: #7fff00;
   --primary-dark: #228b22;
-  --primary-text: #000000;
+  --primary-text: #ffffff;
 
   /* Secondary colors */
   --secondary: #ff9800;
