@@ -1050,3 +1050,101 @@ document.addEventListener("DOMContentLoaded", () => {
   initializeFilters();
   fetchActivities();
 });
+
+// Git-style branch animation
+(function initGitBranchesAnimation() {
+  const canvas = document.getElementById('git-branches-canvas');
+  if (!canvas) return;
+
+  const ctx = canvas.getContext('2d');
+  let width, height;
+  
+  function resizeCanvas() {
+    width = canvas.width = window.innerWidth;
+    height = canvas.height = window.innerHeight;
+  }
+  
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+  
+  class Branch {
+    constructor() {
+      this.x = Math.random() * width;
+      this.y = Math.random() * height;
+      this.targetX = this.x + (Math.random() - 0.5) * 200;
+      this.targetY = this.y + (Math.random() - 0.5) * 200;
+      this.progress = 0;
+      this.speed = 0.002 + Math.random() * 0.003;
+      this.nodes = [];
+      this.createNodes();
+    }
+    
+    createNodes() {
+      const numNodes = 3 + Math.floor(Math.random() * 5);
+      for (let i = 0; i < numNodes; i++) {
+        this.nodes.push({
+          x: this.x + (this.targetX - this.x) * (i / numNodes) + (Math.random() - 0.5) * 50,
+          y: this.y + (this.targetY - this.y) * (i / numNodes) + (Math.random() - 0.5) * 50
+        });
+      }
+    }
+    
+    update() {
+      this.progress += this.speed;
+      if (this.progress >= 1) {
+        this.x = Math.random() * width;
+        this.y = Math.random() * height;
+        this.targetX = this.x + (Math.random() - 0.5) * 200;
+        this.targetY = this.y + (Math.random() - 0.5) * 200;
+        this.progress = 0;
+        this.nodes = [];
+        this.createNodes();
+      }
+    }
+    
+    draw() {
+      const isDarkMode = document.body.classList.contains('dark-mode');
+      ctx.strokeStyle = isDarkMode ? '#7FFF00' : '#32CD32';
+      ctx.lineWidth = 2;
+      ctx.lineCap = 'round';
+      
+      const visibleNodes = Math.floor(this.progress * this.nodes.length);
+      if (visibleNodes < 2) return;
+      
+      ctx.beginPath();
+      ctx.moveTo(this.nodes[0].x, this.nodes[0].y);
+      
+      for (let i = 1; i < visibleNodes; i++) {
+        ctx.lineTo(this.nodes[i].x, this.nodes[i].y);
+      }
+      
+      ctx.stroke();
+      
+      // Draw nodes as circles
+      ctx.fillStyle = isDarkMode ? '#7FFF00' : '#32CD32';
+      for (let i = 0; i < visibleNodes; i++) {
+        ctx.beginPath();
+        ctx.arc(this.nodes[i].x, this.nodes[i].y, 4, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+  }
+  
+  const branches = [];
+  for (let i = 0; i < 8; i++) {
+    branches.push(new Branch());
+  }
+  
+  function animate() {
+    ctx.clearRect(0, 0, width, height);
+    
+    branches.forEach(branch => {
+      branch.update();
+      branch.draw();
+    });
+    
+    requestAnimationFrame(animate);
+  }
+  
+  animate();
+})();
